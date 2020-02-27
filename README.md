@@ -45,17 +45,18 @@ Options for the program
 
 Usage:  comp [-c | -d] [OPTIONS] FILE
 Options:
-  -c,       --compress       compress FILE
   
-  -d,       --decompress     decompress FILE
+  - -c,       --compress       compress FILE
   
-  -q n,     --queue_size=n   size of the work queue
+  - -d,       --decompress     decompress FILE
   
-  -t n,     --threads=n      number of threads
+  - -q n,     --queue_size=n   size of the work queue
   
-  -s n,     --size=n         size of each chunk
+  - -t n,     --threads=n      number of threads
   
-  -o ofile, --out=ofile      name of the output file
+  - -s n,     --size=n         size of each chunk
   
-  -h,       --help           this message
+  - -o ofile, --out=ofile      name of the output file
+  
+  - -h,       --help           this message
 
