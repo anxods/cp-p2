@@ -4,10 +4,13 @@ In this assignment we are going to develop a concurrent compression tool. We wil
 a single threaded version provided in the p2.tar.gz file. The tool compresses blocks of a given size
 from the input file and creates an archive file formed by compressed chunks. An archive can then
 be decompressed back into the original file.
+
 The compression and decompression functions use the zlib library. In order to compile the
 compression tool you must have the development headers installed. Check that you have the
 required packages using the package manager of your distribution. E.g, in Ubuntu:
+
 $ sudo apt-get install zlib1g-dev
+
 The compression tool has the following modules:
 compress, which interfaces with the zlib library to compress/decompress data in memory.
 chunk_archive, which creates and reads files that store an arbitrary number of chunks of
