@@ -185,8 +185,8 @@ void comp(struct options opt) {
     free(threads);
 
     t = clock() - t;
-	double time_taken = ((double)t)/CLOCKS_PER_SEC; 
-	printf("start_threads() took %f seconds to execute \n", time_taken);
+    double time_taken = ((double)t)/CLOCKS_PER_SEC; 
+    printf("comp() took %f seconds to execute \n", time_taken);
 }
 
 /* Exercise 4 (Make the decompression concurrent) The decompression is also performed
@@ -311,8 +311,8 @@ void decomp(struct options opt) {
     free(threads);
 
     t = clock() - t;
-	double time_taken = ((double)t)/CLOCKS_PER_SEC; 
-	printf("start_threads() took %f seconds to execute \n", time_taken);
+    double time_taken = ((double)t)/CLOCKS_PER_SEC; 
+    printf("decomp() took %f seconds to execute \n", time_taken);
 }
 
 int main(int argc, char *argv[]) {
