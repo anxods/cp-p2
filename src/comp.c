@@ -70,9 +70,12 @@ void comp(struct options opt) {
     archive ar;
     queue in, out;
     chunk ch;
+    clock_t t;
 
     struct infthread *threads;
     struct args *args;
+
+    t = clock();
 
     if((fd=open(opt.file, O_RDONLY))==-1) {
         printf("Cannot open %s\n", opt.file);
@@ -180,6 +183,10 @@ void comp(struct options opt) {
 
     free(args);
     free(threads);
+
+    t = clock() - t;
+	double time_taken = ((double)t)/CLOCKS_PER_SEC; 
+	printf("start_threads() took %f seconds to execute \n", time_taken);
 }
 
 /* Exercise 4 (Make the decompression concurrent) The decompression is also performed
@@ -196,9 +203,12 @@ void decomp(struct options opt) {
     archive ar;
     queue in, out;
     chunk ch;
+    clock_t t;
 
     struct infthread *threads;
     struct args *args;
+
+    t = clock();
 
     if((ar=open_archive_file(opt.file))==NULL) {
         printf("Cannot open archive file\n");
@@ -299,6 +309,10 @@ void decomp(struct options opt) {
 
     free(args);
     free(threads);
+
+    t = clock() - t;
+	double time_taken = ((double)t)/CLOCKS_PER_SEC; 
+	printf("start_threads() took %f seconds to execute \n", time_taken);
 }
 
 int main(int argc, char *argv[]) {
