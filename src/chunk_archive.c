@@ -7,7 +7,6 @@
 #include <string.h>
 #include <errno.h>
 #include "chunk_archive.h"
-//do not touch this file
 
 #define CHUNK_LIST_DEFAULT_SIZE 1000
 
@@ -19,7 +18,7 @@ typedef struct {
 
 archive create_archive_file(char *filename) {
     int fd;
-    int chunks=0;
+    unsigned int chunks=0;
 
     archive ar;
 
@@ -39,22 +38,25 @@ archive create_archive_file(char *filename) {
     ar->archive_offset = NULL;
     ar->file_offset    = NULL;
     ar->chunk_size     = NULL;
+    ar->table_size     = 0;
 
     return ar;
 }
 
-void check_chunk_list_size(archive ar) {
-    if(ar->chunks % CHUNK_LIST_DEFAULT_SIZE == 0) {
-        ar->archive_offset = realloc(ar->archive_offset, (ar->chunks+CHUNK_LIST_DEFAULT_SIZE)*sizeof(unsigned int));
-        ar->chunk_size     = realloc(ar->chunk_size    , (ar->chunks+CHUNK_LIST_DEFAULT_SIZE)*sizeof(unsigned int));
-        ar->file_offset    = realloc(ar->file_offset   , (ar->chunks+CHUNK_LIST_DEFAULT_SIZE)*sizeof(unsigned int));
+void check_chunk_list_size(archive ar, int chunk_num) {
+    while(chunk_num >= ar->table_size) {
+        ar->archive_offset = realloc(ar->archive_offset, (ar->table_size+CHUNK_LIST_DEFAULT_SIZE)*sizeof(unsigned int));
+        ar->chunk_size     = realloc(ar->chunk_size    , (ar->table_size+CHUNK_LIST_DEFAULT_SIZE)*sizeof(unsigned int));
+        ar->file_offset    = realloc(ar->file_offset   , (ar->table_size+CHUNK_LIST_DEFAULT_SIZE)*sizeof(unsigned int));
+        ar->table_size    += CHUNK_LIST_DEFAULT_SIZE;
     }
 }
 
 archive open_archive_file(char *filename) {
-    int i, fd;
+    int fd;
+    unsigned int i;
     char magic[5];
-    int chunks;
+    unsigned int chunks;
     int offset;
     archive ar;
 
@@ -73,7 +75,7 @@ archive open_archive_file(char *filename) {
         exit(0);
     }
 
-    if(read(fd, &chunks, sizeof(unsigned int))<sizeof(unsigned int)) {
+    if(read(fd, &chunks, sizeof(unsigned int)) < (ssize_t) sizeof(unsigned int)) {
         printf("Could not read %s\n", filename);
         exit(0);
     }
@@ -83,13 +85,12 @@ archive open_archive_file(char *filename) {
     ar->fd             = fd;
     ar->chunks         = 0;
     ar->name           = strdup(filename);
-    ar->archive_offset = NULL;
-    ar->chunk_size     = NULL;
-    ar->file_offset    = NULL;
+    ar->archive_offset = malloc(chunks * sizeof(unsigned int));
+    ar->chunk_size     = malloc(chunks * sizeof(unsigned int));
+    ar->file_offset    = malloc(chunks * sizeof(unsigned int));
+    ar->table_size     = 0;
 
     for(i=0; i<chunks; i++) {
-        check_chunk_list_size(ar);
-
         int size, chunk_num;
         read(fd, &size,      sizeof(unsigned int));
         read(fd, &chunk_num, sizeof(unsigned int));
@@ -117,7 +118,7 @@ void close_archive_file(archive ar) {
 }
 
 int add_chunk(archive ar,chunk ch) {
-    check_chunk_list_size(ar);
+    check_chunk_list_size(ar, ch->num);
 
     lseek(ar->fd, 0, SEEK_END);
     write(ar->fd, &ch->size, sizeof(unsigned int));
@@ -133,9 +134,11 @@ int add_chunk(archive ar,chunk ch) {
 
     lseek(ar->fd, 5, SEEK_SET);
     write(ar->fd, &ar->chunks, sizeof(unsigned int));
+
+    return 0;
 }
 
-chunk get_chunk(archive ar, int chunk_num) {
+chunk get_chunk(archive ar, unsigned int chunk_num) {
     chunk res;
 
     res=malloc(sizeof(*res));
